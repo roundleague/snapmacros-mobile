@@ -1,28 +1,42 @@
 {
   "expo": {
-    "name": "snapmacros-mobile",
-    "slug": "snapmacros-mobile",
+    "name": "SnapMacros",
+    "slug": "snapmacros",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "scheme": "snapmacros",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0f172a"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.snapmacros.app"
     },
     "android": {
+      "package": "com.snapmacros.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0f172a"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES"
+      ]
     },
+    "plugins": [
+      ["expo-image-picker", {
+        "photosPermission": "Allow SnapMacros to access your photos to log meals.",
+        "cameraPermission": "Allow SnapMacros to use your camera to photograph meals."
+      }]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     }
