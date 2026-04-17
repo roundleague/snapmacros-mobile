@@ -30,6 +30,7 @@ export default function Dashboard() {
         api.getInsight({
           profile: data.profile, totals: data.totals,
           calories_burned: data.calories_burned ?? 0, meal_count: data.logs.length,
+          logs: data.logs.map(l => ({ name: l.name, calories: l.calories, protein_g: l.protein_g })),
         }).then(r => setInsight(r.insight)).catch(() => {});
         void fingerprint;
       }

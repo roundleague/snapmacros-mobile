@@ -51,7 +51,7 @@ export const api = {
     request<{ meals: Array<{ name: string; meal_type: MealType; serving_size: string; calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; confidence: number }> }>('POST', '/api/meals/parse', { text }),
   getRecentMeals: () => request<FoodLog[]>('GET', '/api/logs/recent'),
   getStreak: () => request<{ streak: number }>('GET', '/api/streak'),
-  getInsight: (payload: { profile: Profile; totals: { calories: number; protein_g: number; carbs_g: number; fat_g: number }; calories_burned: number; meal_count: number }) =>
+  getInsight: (payload: { profile: Profile; totals: { calories: number; protein_g: number; carbs_g: number; fat_g: number }; calories_burned: number; meal_count: number; logs?: { name: string; calories: number; protein_g: number }[] }) =>
     request<{ insight: string }>('POST', '/api/insights', payload),
 
   getCoachMessages: () => request<CoachMessage[]>('GET', '/api/coach/messages'),
