@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Dashboard from '../screens/Dashboard';
 import History from '../screens/History';
 import Coach from '../screens/Coach';
@@ -8,16 +8,15 @@ import LogStackNavigator from './LogStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ name, focused }: { name: string; focused: boolean }) {
-  const icons: Record<string, string> = {
-    Dashboard: '⊙', Log: '＋', History: '◫', Coach: '💬', Settings: '⚙',
-  };
-  return (
-    <Text style={{ fontSize: 18, color: focused ? '#6366f1' : '#64748b' }}>
-      {icons[name] ?? '•'}
-    </Text>
-  );
-}
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+const TAB_ICONS: Record<string, { active: IoniconsName; inactive: IoniconsName }> = {
+  Dashboard: { active: 'grid',         inactive: 'grid-outline' },
+  Log:       { active: 'add-circle',   inactive: 'add-circle-outline' },
+  History:   { active: 'time',         inactive: 'time-outline' },
+  Coach:     { active: 'chatbubble',   inactive: 'chatbubble-outline' },
+  Settings:  { active: 'settings',     inactive: 'settings-outline' },
+};
 
 export default function TabNavigator() {
   return (
@@ -33,9 +32,11 @@ export default function TabNavigator() {
         },
         tabBarActiveTintColor: '#6366f1',
         tabBarInactiveTintColor: '#64748b',
-        tabBarIcon: ({ focused }) => (
-          <TabIcon name={route.name} focused={focused} />
-        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          const icons = TAB_ICONS[route.name];
+          const iconName = icons ? (focused ? icons.active : icons.inactive) : 'ellipse-outline';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       })}
     >
