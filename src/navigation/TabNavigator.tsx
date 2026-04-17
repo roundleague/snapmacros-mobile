@@ -13,7 +13,7 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     Dashboard: '⊙', Log: '＋', History: '◫', Coach: '💬', Settings: '⚙',
   };
   return (
-    <Text style={{ fontSize: 18, opacity: focused ? 1 : 0.4 }}>
+    <Text style={{ fontSize: 18, color: focused ? '#6366f1' : '#64748b' }}>
       {icons[name] ?? '•'}
     </Text>
   );
