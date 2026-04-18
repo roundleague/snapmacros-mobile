@@ -28,17 +28,27 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.READ_MEDIA_IMAGES"
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
-      ["expo-image-picker", {
-        "photosPermission": "Allow SnapMacros to access your photos to log meals.",
-        "cameraPermission": "Allow SnapMacros to use your camera to photograph meals."
-      }]
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow SnapMacros to access your photos to log meals.",
+          "cameraPermission": "Allow SnapMacros to use your camera to photograph meals."
+        }
+      ]
     ],
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e3896479-5ad7-41d9-ba78-cbc8c7a4d7ba"
+      }
+    },
+    "owner": "huynt553"
   }
 }

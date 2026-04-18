@@ -21,16 +21,6 @@
     }
   },
   "submit": {
-    "production": {
-      "ios": {
-        "appleId": "huynt553@gmail.com",
-        "ascAppId": "",
-        "appleTeamId": ""
-      },
-      "android": {
-        "serviceAccountKeyPath": "./google-services.json",
-        "track": "internal"
-      }
-    }
+    "production": {}
   }
 }
