@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "SnapMacros",
-    "slug": "snapmacros",
+    "name": "MacroSnap",
+    "slug": "macrosnap",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "scheme": "snapmacros",
+    "scheme": "macrosnap",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -15,13 +15,13 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.snapmacros.app",
+      "bundleIdentifier": "com.timhuynh.macrosnap",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.snapmacros.app",
+      "package": "com.timhuynh.macrosnap",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f172a"
@@ -39,8 +39,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow SnapMacros to access your photos to log meals.",
-          "cameraPermission": "Allow SnapMacros to use your camera to photograph meals."
+          "photosPermission": "Allow MacroSnap to access your photos to log meals.",
+          "cameraPermission": "Allow MacroSnap to use your camera to photograph meals."
         }
       ]
     ],
