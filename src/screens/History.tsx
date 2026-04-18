@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import EditLogModal from '../components/EditLogModal';
 import type { EditTarget, MealEditData, ExerciseEditData } from '../components/EditLogModal';
 import { api, formatDate } from '../lib/api';
-import { copyToClipboard, formatDaysForClipboard } from '../lib/clipboard';
 import type { HistoryDay, MealType } from '../types';
 
 const MEAL_META: { type: MealType; label: string; icon: string; color: string }[] = [
@@ -18,8 +17,6 @@ export default function History() {
   const [days, setDays] = useState<HistoryDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'meals' | 'workouts'>('meals');
-  const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
-  const [copied, setCopied] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
 
   const load = useCallback(() => {
@@ -27,21 +24,6 @@ export default function History() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
-
-  const toggleDay = (date: string) => {
-    setSelectedDays(prev => {
-      const next = new Set(prev);
-      if (next.has(date)) next.delete(date); else next.add(date);
-      return next;
-    });
-  };
-
-  const handleCopy = async () => {
-    const selected = days.filter(d => selectedDays.has(d.date));
-    await copyToClipboard(formatDaysForClipboard(selected));
-    setCopied(true);
-    setTimeout(() => { setCopied(false); setSelectedDays(new Set()); }, 2000);
-  };
 
   const mealDays = days.filter(d => d.count > 0);
   const workoutDays = days.filter(d => d.exercise_count > 0);
@@ -58,22 +40,8 @@ export default function History() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0f172a' }}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 8 }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
         <Text style={{ color: 'white', fontSize: 22, fontWeight: '800' }}>History</Text>
-        {selectedDays.size > 0 && (
-          <TouchableOpacity
-            onPress={handleCopy}
-            style={{
-              flexDirection: 'row', alignItems: 'center', gap: 6,
-              backgroundColor: copied ? '#16a34a' : '#6366f1',
-              paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 13, fontWeight: '700' }}>
-              {copied ? '✓ Copied!' : `Copy ${selectedDays.size} day${selectedDays.size > 1 ? 's' : ''}`}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       {/* Tabs */}
@@ -103,15 +71,11 @@ export default function History() {
           tab === 'meals' ? (
             <MealDayRow
               day={item}
-              isSelected={selectedDays.has(item.date)}
-              onToggle={() => toggleDay(item.date)}
               onEditMeal={(data) => setEditTarget({ kind: 'meal', data })}
             />
           ) : (
             <WorkoutDayRow
               day={item}
-              isSelected={selectedDays.has(item.date)}
-              onToggle={() => toggleDay(item.date)}
               onEditExercise={(data) => setEditTarget({ kind: 'exercise', data })}
             />
           )
@@ -129,8 +93,8 @@ export default function History() {
   );
 }
 
-function MealDayRow({ day, isSelected, onToggle, onEditMeal }: {
-  day: HistoryDay; isSelected: boolean; onToggle: () => void;
+function MealDayRow({ day, onEditMeal }: {
+  day: HistoryDay;
   onEditMeal: (data: MealEditData) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -138,17 +102,7 @@ function MealDayRow({ day, isSelected, onToggle, onEditMeal }: {
 
   return (
     <View style={{ backgroundColor: '#1e293b', borderRadius: 20, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 12, paddingRight: 16, paddingVertical: 12, gap: 10 }}>
-        <TouchableOpacity onPress={onToggle} style={{ padding: 4 }}>
-          <View style={{
-            width: 20, height: 20, borderRadius: 6, borderWidth: 2,
-            borderColor: isSelected ? '#6366f1' : '#475569',
-            backgroundColor: isSelected ? '#6366f1' : 'transparent',
-            alignItems: 'center', justifyContent: 'center',
-          }}>
-            {isSelected && <Text style={{ color: 'white', fontSize: 12, fontWeight: '800' }}>✓</Text>}
-          </View>
-        </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
         <TouchableOpacity style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => setOpen(o => !o)}>
           <View>
             <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>{formatDate(day.date)}</Text>
@@ -211,25 +165,15 @@ function MealDayRow({ day, isSelected, onToggle, onEditMeal }: {
   );
 }
 
-function WorkoutDayRow({ day, isSelected, onToggle, onEditExercise }: {
-  day: HistoryDay; isSelected: boolean; onToggle: () => void;
+function WorkoutDayRow({ day, onEditExercise }: {
+  day: HistoryDay;
   onEditExercise: (data: ExerciseEditData) => void;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <View style={{ backgroundColor: '#1e293b', borderRadius: 20, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 12, paddingRight: 16, paddingVertical: 12, gap: 10 }}>
-        <TouchableOpacity onPress={onToggle} style={{ padding: 4 }}>
-          <View style={{
-            width: 20, height: 20, borderRadius: 6, borderWidth: 2,
-            borderColor: isSelected ? '#6366f1' : '#475569',
-            backgroundColor: isSelected ? '#6366f1' : 'transparent',
-            alignItems: 'center', justifyContent: 'center',
-          }}>
-            {isSelected && <Text style={{ color: 'white', fontSize: 12, fontWeight: '800' }}>✓</Text>}
-          </View>
-        </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
         <TouchableOpacity style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => setOpen(o => !o)}>
           <View>
             <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>{formatDate(day.date)}</Text>

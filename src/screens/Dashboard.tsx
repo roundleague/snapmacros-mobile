@@ -5,7 +5,6 @@ import MacroRing from '../components/MacroRing';
 import EditLogModal from '../components/EditLogModal';
 import type { EditTarget, MealEditData, ExerciseEditData } from '../components/EditLogModal';
 import { api, todayStr, formatDateLong } from '../lib/api';
-import { copyToClipboard, formatSummaryForClipboard } from '../lib/clipboard';
 import type { DaySummary, ExerciseLog, FoodLog, MealType } from '../types';
 
 const MEAL_LABELS: Record<MealType, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
@@ -19,7 +18,6 @@ export default function Dashboard() {
   const [insight, setInsight] = useState('');
   const [mealView, setMealView] = useState<'calories' | 'protein'>('protein');
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
-  const [copied, setCopied] = useState(false);
   const date = todayStr();
 
   const load = useCallback(() => {
@@ -40,12 +38,6 @@ export default function Dashboard() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.getStreak().then(r => setStreak(r.streak)).catch(() => {}); }, []);
 
-  const handleCopy = async () => {
-    if (!summary) return;
-    await copyToClipboard(formatSummaryForClipboard(date, summary));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   if (loading) {
     return (
@@ -89,13 +81,6 @@ export default function Dashboard() {
                   <Text style={{ color: '#fb923c', fontSize: 12, fontWeight: '700' }}>🔥 {streak}</Text>
                 </View>
               ) : null}
-              {(summary.logs.length > 0 || (summary.exercise_logs?.length ?? 0) > 0) && (
-                <TouchableOpacity onPress={handleCopy}>
-                  <Text style={{ color: copied ? '#34d399' : '#475569', fontSize: 16 }}>
-                    {copied ? '✓' : '⎘'}
-                  </Text>
-                </TouchableOpacity>
-              )}
             </View>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
