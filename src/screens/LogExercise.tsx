@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -18,13 +18,18 @@ export default function LogExercise() {
   const [exercises, setExercises] = useState<Omit<ExerciseLog, 'id' | 'logged_at'>[]>([]);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [userWeight, setUserWeight] = useState(175);
+
+  useEffect(() => {
+    api.getProfile().then(p => { if (p?.weight_lbs) setUserWeight(p.weight_lbs); }).catch(() => {});
+  }, []);
 
   const handleParse = async () => {
     if (!text.trim()) return;
     setLoading(true);
     setError('');
     try {
-      const result = await api.parseExercise(text.trim(), 175);
+      const result = await api.parseExercise(text.trim(), userWeight);
       const date = todayStr();
       setExercises(result.map(e => ({ ...e, date })));
       setStep('confirm');

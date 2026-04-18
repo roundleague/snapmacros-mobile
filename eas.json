@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 16.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "huynt553@gmail.com",
+        "ascAppId": "",
+        "appleTeamId": ""
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-services.json",
+        "track": "internal"
+      }
+    }
+  }
+}
