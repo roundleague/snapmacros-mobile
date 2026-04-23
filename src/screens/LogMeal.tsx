@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert,
+  KeyboardAvoidingView, Platform, Image, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { api, todayStr } from '../lib/api';
 import type { FoodLog, MealType } from '../types';
+import SuccessOverlay, { ShimmerLoader } from '../components/SuccessOverlay';
 
 type Step = 'input' | 'confirm';
 type InputMode = 'camera' | 'text';
@@ -25,6 +26,8 @@ export default function LogMeal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successData, setSuccessData] = useState({ primary: '', secondary: '' });
   const [meals, setMeals] = useState<Omit<FoodLog, 'id' | 'logged_at'>[]>([]);
 
   const takePhoto = async () => {
@@ -95,7 +98,13 @@ export default function LogMeal() {
       for (const meal of meals) {
         await api.addLog(meal);
       }
-      nav.goBack();
+      const totalCal = meals.reduce((s, m) => s + m.calories, 0);
+      const totalPro = meals.reduce((s, m) => s + m.protein_g, 0);
+      setSuccessData({
+        primary: `+${Math.round(totalCal)} cal`,
+        secondary: `+${Math.round(totalPro)}g protein`,
+      });
+      setShowSuccess(true);
     } catch (e: any) {
       setError(e.message || 'Failed to save');
       setSaving(false);
@@ -108,6 +117,13 @@ export default function LogMeal() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0f172a' }}>
+      <SuccessOverlay
+        visible={showSuccess}
+        type="food"
+        primaryText={successData.primary}
+        secondaryText={successData.secondary || undefined}
+        onDone={() => nav.goBack()}
+      />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 12 }}>
@@ -117,7 +133,9 @@ export default function LogMeal() {
           <Text style={{ color: 'white', fontSize: 18, fontWeight: '700', flex: 1 }}>Log Meal</Text>
         </View>
 
-        {step === 'input' ? (
+        {loading ? (
+          <ShimmerLoader label="Analyzing…" subLabel="AI is estimating nutrition" />
+        ) : step === 'input' ? (
           <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
             {/* Mode toggle */}
             <View style={{ flexDirection: 'row', backgroundColor: '#1e293b', borderRadius: 12, padding: 3, gap: 3 }}>

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { api, todayStr } from '../lib/api';
 import type { ExerciseLog } from '../types';
+import SuccessOverlay from '../components/SuccessOverlay';
 
 type Step = 'input' | 'confirm';
 type DraftExercise = Omit<ExerciseLog, 'id' | 'logged_at'>;
@@ -19,6 +20,8 @@ export default function LogExercise() {
   const [exercises, setExercises] = useState<DraftExercise[]>([]);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successData, setSuccessData] = useState({ primary: '', secondary: '' });
   const [userWeight, setUserWeight] = useState(175);
   const [recentExercises, setRecentExercises] = useState<DraftExercise[]>([]);
   const [chipSelections, setChipSelections] = useState<DraftExercise[]>([]);
@@ -75,7 +78,13 @@ export default function LogExercise() {
     setSaving(true);
     try {
       await api.addExerciseLogs(exercises);
-      nav.goBack();
+      const totalSets = exercises.reduce((s, e) => s + (Number(e.sets) || 0), 0);
+      const totalBurned = exercises.reduce((s, e) => s + (Number(e.calories_burned) || 0), 0);
+      setSuccessData({
+        primary: totalSets > 0 ? `+${totalSets} sets` : `+${Math.round(totalBurned)} cal burned`,
+        secondary: totalSets > 0 ? `+${Math.round(totalBurned)} cal burned` : '',
+      });
+      setShowSuccess(true);
     } catch (e: any) {
       setError(e.message || 'Failed to save');
       setSaving(false);
@@ -92,6 +101,13 @@ export default function LogExercise() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0f172a' }}>
+      <SuccessOverlay
+        visible={showSuccess}
+        type="exercise"
+        primaryText={successData.primary}
+        secondaryText={successData.secondary || undefined}
+        onDone={() => nav.goBack()}
+      />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 12 }}>

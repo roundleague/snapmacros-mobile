@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import type { Profile } from '../types';
+import { loadPrefs, savePrefs } from '../lib/feedback';
 
 const ACTIVITY_OPTIONS = [
   { value: 'sedentary', label: 'Sedentary' },
@@ -27,6 +28,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [haptics, setHaptics] = useState(true);
 
   const [name, setName] = useState('');
   const [weightLbs, setWeightLbs] = useState('');
@@ -38,6 +40,7 @@ export default function Settings() {
   const [goal, setGoal] = useState<Profile['goal']>('maintenance');
 
   useEffect(() => {
+    loadPrefs().then(p => setHaptics(p.haptics));
     api.getProfile().then(p => {
       if (p?.name) {
         setName(p.name);
@@ -141,6 +144,25 @@ export default function Settings() {
           <Field label="Goal">
             <PillRow options={GOAL_OPTIONS as any} value={goal} onChange={(v) => setGoal(v as Profile['goal'])} />
           </Field>
+
+          {/* Preferences */}
+          <View style={{ gap: 8 }}>
+            <Text style={{ color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              Preferences
+            </Text>
+            <View style={{ backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#334155', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ gap: 2 }}>
+                <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>Haptic feedback</Text>
+                <Text style={{ color: '#64748b', fontSize: 12 }}>Vibrate on successful log</Text>
+              </View>
+              <Switch
+                value={haptics}
+                onValueChange={v => { setHaptics(v); savePrefs({ haptics: v }); }}
+                trackColor={{ false: '#334155', true: '#6366f1' }}
+                thumbColor="white"
+              />
+            </View>
+          </View>
 
           <TouchableOpacity
             onPress={handleSave}
