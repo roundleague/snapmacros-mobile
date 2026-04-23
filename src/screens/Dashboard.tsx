@@ -161,7 +161,7 @@ export default function Dashboard() {
               logs={g.logs}
               view={mealView}
               onDelete={async (id) => { await api.deleteLog(id); load(); }}
-              onEdit={(log) => setEditTarget({ kind: 'meal', data: { id: log.id, name: log.name, meal_type: log.meal_type, calories: log.calories, protein_g: log.protein_g, carbs_g: log.carbs_g, fat_g: log.fat_g, fiber_g: log.fiber_g, serving_size: log.serving_size, notes: log.notes } })}
+              onEdit={(log) => setEditTarget({ kind: 'meal', data: { id: log.id, date: log.date, name: log.name, meal_type: log.meal_type, calories: log.calories, protein_g: log.protein_g, carbs_g: log.carbs_g, fat_g: log.fat_g, fiber_g: log.fiber_g, serving_size: log.serving_size, notes: log.notes } })}
             />
           ))
         )}
@@ -171,7 +171,7 @@ export default function Dashboard() {
           <ExerciseSection
             logs={summary.exercise_logs}
             onDelete={async (id) => { await api.deleteExerciseLog(id); load(); }}
-            onEdit={(log) => setEditTarget({ kind: 'exercise', data: { id: log.id, name: log.name, category: log.category, sets: log.sets, reps: log.reps, weight_lbs: log.weight_lbs, duration_min: log.duration_min, calories_burned: log.calories_burned } })}
+            onEdit={(log) => setEditTarget({ kind: 'exercise', data: { id: log.id, date: log.date, name: log.name, category: log.category, sets: log.sets, reps: log.reps, weight_lbs: log.weight_lbs, duration_min: log.duration_min, calories_burned: log.calories_burned } })}
           />
         )}
 

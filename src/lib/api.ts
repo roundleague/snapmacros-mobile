@@ -29,7 +29,7 @@ export const api = {
   getLogs: (date: string) => request<FoodLog[]>('GET', `/api/logs/${date}`),
   addLog: (log: Omit<FoodLog, 'id' | 'logged_at'>) => request('POST', '/api/logs', log),
   deleteLog: (id: number) => request('DELETE', `/api/logs/${id}`),
-  updateLog: (id: number, data: Partial<Omit<FoodLog, 'id' | 'logged_at' | 'date'>>) => request('PUT', `/api/logs/${id}`, data),
+  updateLog: (id: number, data: Partial<Omit<FoodLog, 'id' | 'logged_at'>>) => request('PUT', `/api/logs/${id}`, data),
 
   getHistory: () => request<HistoryDay[]>('GET', '/api/history'),
 
@@ -44,8 +44,10 @@ export const api = {
     request('POST', '/api/exercise/logs', logs),
   deleteExerciseLog: (id: number) =>
     request('DELETE', `/api/exercise/logs/${id}`),
-  updateExerciseLog: (id: number, data: Partial<Omit<ExerciseLog, 'id' | 'logged_at' | 'date'>>) =>
+  getRecentExercises: () => request<ExerciseLog[]>('GET', '/api/exercise/logs/recent'),
+  updateExerciseLog: (id: number, data: Partial<Omit<ExerciseLog, 'id' | 'logged_at'>>) =>
     request('PUT', `/api/exercise/logs/${id}`, data),
+  moveDay: (fromDate: string, toDate: string) => request('PUT', `/api/day/${fromDate}/move`, { newDate: toDate }),
 
   parseMeals: (text: string) =>
     request<{ meals: Array<{ name: string; meal_type: MealType; serving_size: string; calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; confidence: number }> }>('POST', '/api/meals/parse', { text }),

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EditLogModal from '../components/EditLogModal';
 import type { EditTarget, MealEditData, ExerciseEditData } from '../components/EditLogModal';
@@ -72,11 +72,13 @@ export default function History() {
             <MealDayRow
               day={item}
               onEditMeal={(data) => setEditTarget({ kind: 'meal', data })}
+              onMoveDay={(fromDate, toDate) => api.moveDay(fromDate, toDate).then(load)}
             />
           ) : (
             <WorkoutDayRow
               day={item}
               onEditExercise={(data) => setEditTarget({ kind: 'exercise', data })}
+              onMoveDay={(fromDate, toDate) => api.moveDay(fromDate, toDate).then(load)}
             />
           )
         }
@@ -93,16 +95,19 @@ export default function History() {
   );
 }
 
-function MealDayRow({ day, onEditMeal }: {
+function MealDayRow({ day, onEditMeal, onMoveDay }: {
   day: HistoryDay;
   onEditMeal: (data: MealEditData) => void;
+  onMoveDay: (fromDate: string, toDate: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [movingDate, setMovingDate] = useState(false);
+  const [newDate, setNewDate] = useState(day.date);
   const breakdownItems = MEAL_META.filter(({ type }) => (day.meal_breakdown?.[type]?.items?.length ?? 0) > 0);
 
   return (
     <View style={{ backgroundColor: '#1e293b', borderRadius: 20, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
         <TouchableOpacity style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => setOpen(o => !o)}>
           <View>
             <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>{formatDate(day.date)}</Text>
@@ -114,7 +119,36 @@ function MealDayRow({ day, onEditMeal }: {
             <Text style={{ color: '#64748b' }}>{open ? '▲' : '▼'}</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => { setNewDate(day.date); setMovingDate(true); }} style={{ padding: 4 }}>
+          <Text style={{ fontSize: 16 }}>📅</Text>
+        </TouchableOpacity>
       </View>
+
+      <Modal visible={movingDate} transparent animationType="fade" onRequestClose={() => setMovingDate(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 32 }}>
+          <View style={{ backgroundColor: '#1e293b', borderRadius: 20, padding: 20, width: '100%', gap: 16 }}>
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>Move all logs to date</Text>
+            <TextInput
+              value={newDate}
+              onChangeText={setNewDate}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor="#475569"
+              style={{ backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: 'white', fontSize: 15 }}
+            />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity onPress={() => setMovingDate(false)} style={{ flex: 1, backgroundColor: '#334155', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { setMovingDate(false); onMoveDay(day.date, newDate); }}
+                style={{ flex: 1, backgroundColor: '#6366f1', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}
+              >
+                <Text style={{ color: 'white', fontWeight: '600' }}>Move</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {open && (
         <View style={{ borderTopWidth: 1, borderTopColor: '#334155', padding: 12, gap: 12 }}>
@@ -149,7 +183,7 @@ function MealDayRow({ day, onEditMeal }: {
                       <Text style={{ color: '#4ade80', fontSize: 11 }}>{Math.round(item.protein_g)}g protein</Text>
                     </View>
                     <TouchableOpacity
-                      onPress={() => onEditMeal({ id: item.id, name: item.name, meal_type: item.meal_type, calories: item.calories, protein_g: item.protein_g, carbs_g: item.carbs_g, fat_g: item.fat_g, fiber_g: item.fiber_g, serving_size: item.serving_size, notes: item.notes })}
+                      onPress={() => onEditMeal({ id: item.id, date: item.date, name: item.name, meal_type: item.meal_type, calories: item.calories, protein_g: item.protein_g, carbs_g: item.carbs_g, fat_g: item.fat_g, fiber_g: item.fiber_g, serving_size: item.serving_size, notes: item.notes })}
                       style={{ padding: 4 }}
                     >
                       <Text style={{ color: '#475569' }}>✎</Text>
@@ -165,15 +199,18 @@ function MealDayRow({ day, onEditMeal }: {
   );
 }
 
-function WorkoutDayRow({ day, onEditExercise }: {
+function WorkoutDayRow({ day, onEditExercise, onMoveDay }: {
   day: HistoryDay;
   onEditExercise: (data: ExerciseEditData) => void;
+  onMoveDay: (fromDate: string, toDate: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [movingDate, setMovingDate] = useState(false);
+  const [newDate, setNewDate] = useState(day.date);
 
   return (
     <View style={{ backgroundColor: '#1e293b', borderRadius: 20, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
         <TouchableOpacity style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => setOpen(o => !o)}>
           <View>
             <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>{formatDate(day.date)}</Text>
@@ -185,7 +222,36 @@ function WorkoutDayRow({ day, onEditExercise }: {
             <Text style={{ color: '#64748b' }}>{open ? '▲' : '▼'}</Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => { setNewDate(day.date); setMovingDate(true); }} style={{ padding: 4 }}>
+          <Text style={{ fontSize: 16 }}>📅</Text>
+        </TouchableOpacity>
       </View>
+
+      <Modal visible={movingDate} transparent animationType="fade" onRequestClose={() => setMovingDate(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 32 }}>
+          <View style={{ backgroundColor: '#1e293b', borderRadius: 20, padding: 20, width: '100%', gap: 16 }}>
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>Move all logs to date</Text>
+            <TextInput
+              value={newDate}
+              onChangeText={setNewDate}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor="#475569"
+              style={{ backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: 'white', fontSize: 15 }}
+            />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity onPress={() => setMovingDate(false)} style={{ flex: 1, backgroundColor: '#334155', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { setMovingDate(false); onMoveDay(day.date, newDate); }}
+                style={{ flex: 1, backgroundColor: '#6366f1', borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}
+              >
+                <Text style={{ color: 'white', fontWeight: '600' }}>Move</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {open && (
         <View style={{ borderTopWidth: 1, borderTopColor: '#334155', padding: 12, gap: 8 }}>
@@ -202,7 +268,7 @@ function WorkoutDayRow({ day, onEditExercise }: {
                 </View>
                 <Text style={{ color: '#34d399', fontSize: 13, fontWeight: '600' }}>{Math.round(log.calories_burned)} cal</Text>
                 <TouchableOpacity
-                  onPress={() => onEditExercise({ id: log.id, name: log.name, category: log.category, sets: log.sets, reps: log.reps, weight_lbs: log.weight_lbs, duration_min: log.duration_min, calories_burned: log.calories_burned })}
+                  onPress={() => onEditExercise({ id: log.id, date: log.date, name: log.name, category: log.category, sets: log.sets, reps: log.reps, weight_lbs: log.weight_lbs, duration_min: log.duration_min, calories_burned: log.calories_burned })}
                   style={{ padding: 4 }}
                 >
                   <Text style={{ color: '#475569' }}>✎</Text>

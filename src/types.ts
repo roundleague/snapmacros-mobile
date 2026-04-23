@@ -88,7 +88,7 @@ export interface HistoryDay {
       calories: number;
       protein_g: number;
       items: Array<
-        Pick<FoodLog, "id" | "name" | "meal_type" | "calories" | "protein_g" | "carbs_g" | "fat_g" | "fiber_g" | "serving_size" | "notes">
+        Pick<FoodLog, "id" | "date" | "name" | "meal_type" | "calories" | "protein_g" | "carbs_g" | "fat_g" | "fiber_g" | "serving_size" | "notes">
       >;
     }
   >;
@@ -98,6 +98,7 @@ export interface HistoryDay {
     Pick<
       ExerciseLog,
       | "id"
+      | "date"
       | "name"
       | "category"
       | "sets"

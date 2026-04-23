@@ -7,13 +7,13 @@ import { api } from '../lib/api';
 import type { ExerciseLog, MealType } from '../types';
 
 export type MealEditData = {
-  id: number; name: string; meal_type: MealType;
+  id: number; date: string; name: string; meal_type: MealType;
   calories: number; protein_g: number; carbs_g: number;
   fat_g: number; fiber_g: number; serving_size: string; notes?: string;
 };
 
 export type ExerciseEditData = {
-  id: number; name: string; category: ExerciseLog['category'];
+  id: number; date: string; name: string; category: ExerciseLog['category'];
   sets?: number | null; reps?: number | null;
   weight_lbs?: number | null; duration_min?: number | null; calories_burned: number;
 };
@@ -36,6 +36,7 @@ const EX_LABELS: Record<ExerciseLog['category'], string> = { strength: 'Strength
 export default function EditLogModal({ target, onSave, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [logDate, setLogDate] = useState(target.data.date);
 
   const [mealName, setMealName] = useState(target.kind === 'meal' ? target.data.name : '');
   const [mealType, setMealType] = useState<MealType>(target.kind === 'meal' ? target.data.meal_type : 'snack');
@@ -60,14 +61,14 @@ export default function EditLogModal({ target, onSave, onClose }: Props) {
     try {
       if (target.kind === 'meal') {
         await api.updateLog(target.data.id, {
-          name: mealName.trim(), meal_type: mealType,
+          date: logDate, name: mealName.trim(), meal_type: mealType,
           calories: Number(calories) || 0, protein_g: Number(protein) || 0,
           carbs_g: Number(carbs) || 0, fat_g: Number(fat) || 0,
           fiber_g: Number(fiber) || 0, serving_size: serving.trim(),
         });
       } else {
         await api.updateExerciseLog(target.data.id, {
-          name: exName.trim(), category,
+          date: logDate, name: exName.trim(), category,
           sets: sets ? Number(sets) : undefined, reps: reps ? Number(reps) : undefined,
           weight_lbs: weight ? Number(weight) : undefined,
           duration_min: duration ? Number(duration) : undefined,
@@ -96,6 +97,7 @@ export default function EditLogModal({ target, onSave, onClose }: Props) {
 
             {target.kind === 'meal' ? (
               <>
+                <Field label="Date"><RNInput value={logDate} onChangeText={setLogDate} placeholder="YYYY-MM-DD" /></Field>
                 <Field label="Name"><RNInput value={mealName} onChangeText={setMealName} /></Field>
                 <Field label="Meal Type">
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -117,6 +119,7 @@ export default function EditLogModal({ target, onSave, onClose }: Props) {
               </>
             ) : (
               <>
+                <Field label="Date"><RNInput value={logDate} onChangeText={setLogDate} placeholder="YYYY-MM-DD" /></Field>
                 <Field label="Exercise Name"><RNInput value={exName} onChangeText={setExName} /></Field>
                 <Field label="Category">
                   <View style={{ flexDirection: 'row', gap: 8 }}>
