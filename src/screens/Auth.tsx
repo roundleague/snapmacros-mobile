@@ -4,6 +4,7 @@ import {
   Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
+import Logo from '../components/Logo';
 
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -36,7 +37,8 @@ export default function AuthScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}>
-        <Text style={{ fontSize: 32, fontWeight: '800', color: 'white', marginBottom: 4 }}>
+        <Logo size={72} />
+        <Text style={{ fontSize: 32, fontWeight: '800', color: 'white', marginTop: 20, marginBottom: 4 }}>
           SnapMacros
         </Text>
         <Text style={{ color: '#94a3b8', marginBottom: 40, fontSize: 15 }}>
