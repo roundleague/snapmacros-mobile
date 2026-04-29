@@ -6,16 +6,31 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lrgsndpnvnedpqysmqqg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_S9x3AHuh3W8XqqUzV005Ag_HGYn4y1y",
+        "EXPO_PUBLIC_API_URL": "https://snapmacros.vercel.app"
+      }
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lrgsndpnvnedpqysmqqg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_S9x3AHuh3W8XqqUzV005Ag_HGYn4y1y",
+        "EXPO_PUBLIC_API_URL": "https://snapmacros.vercel.app"
+      },
       "ios": {
         "simulator": false
       }
     },
     "production": {
       "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lrgsndpnvnedpqysmqqg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_S9x3AHuh3W8XqqUzV005Ag_HGYn4y1y",
+        "EXPO_PUBLIC_API_URL": "https://snapmacros.vercel.app"
+      },
       "ios": {
         "simulator": false
       }
